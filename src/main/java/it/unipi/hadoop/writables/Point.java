@@ -13,7 +13,7 @@ public class Point implements Writable
 	private ArrayPrimitiveWritable coordinates = null; //array of the values of the coordinates of this point (or sum of points)
 	private IntWritable count; //counts how many points are summed up
 	
-	Point() {
+	public Point() {
 		coordinates = new ArrayPrimitiveWritable();
 		count = new IntWritable(0);
 	}
@@ -51,7 +51,20 @@ public class Point implements Writable
 	}
 	
 	public double getDistance(Point otherPoint) { //computes Euclidean distance between this point and otherPoint
-		//to be continued...
-		return 0;
+		double distance = 0.0;
+		double[] coordinatesPoint = this.getCoordinates();
+		double[] coordinatesOtherPoint = otherPoint.getCoordinates();
+
+		if(coordinatesPoint.length != coordinatesOtherPoint.length){
+			System.out.println("Points in different dimension space");
+			return Double.POSITIVE_INFINITY;
+		}
+
+		for(int i = 0; i < coordinatesPoint.length; i++){
+			distance += Math.pow(coordinatesPoint[i] -  coordinatesOtherPoint[i], 2);
+		}
+		distance = Math.sqrt(distance);
+
+		return distance;
 	}
 }
