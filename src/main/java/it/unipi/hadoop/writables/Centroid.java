@@ -10,6 +10,10 @@ public class Centroid {
 	public Centroid(Point point) {
 		p = new Point(point);
 	}
+
+	public Point getPoint(){
+		return this.p;
+	}
 }
 
 

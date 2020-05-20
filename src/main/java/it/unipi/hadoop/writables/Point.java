@@ -66,21 +66,29 @@ public class Point implements Writable
 		coordinates.readFields(dataInput);
 	}
 	
-	public double getDistance(Point otherPoint) { //computes Euclidean distance between this point and otherPoint
+	public double getDistance(Point otherPoint) throws Exception { //computes Euclidean distance between this point and otherPoint
 		double distance = 0.0;
 		double[] coordinatesPoint = this.getCoordinates();
 		double[] coordinatesOtherPoint = otherPoint.getCoordinates();
 
-		if(coordinatesPoint.length != coordinatesOtherPoint.length){
-			System.out.println("Points in different dimension space");
-			return Double.POSITIVE_INFINITY;
-		}
+		if(coordinatesPoint.length != coordinatesOtherPoint.length) throw new Exception("Points in different dimension spaces");
 
 		for(int i = 0; i < coordinatesPoint.length; i++){
 			distance += Math.pow(coordinatesPoint[i] -  coordinatesOtherPoint[i], 2);
 		}
-		distance = Math.sqrt(distance);
 
-		return distance;
+		return Math.sqrt(distance);
+	}
+
+	public void parse(String values){
+		String[] vector = values.split(" ");
+		double[] tmp = new double[vector.length];
+
+		for(int i = 0; i < vector.length; i++) {
+			tmp[i] = Double.valueOf(vector[i]);
+		}
+
+		this.setCoordinates(tmp);
+		this.setCount(1);
 	}
 }
