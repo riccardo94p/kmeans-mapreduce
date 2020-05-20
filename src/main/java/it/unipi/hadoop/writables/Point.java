@@ -1,6 +1,7 @@
 package it.unipi.hadoop.writables;
 
 import org.apache.hadoop.io.ArrayPrimitiveWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;
 
@@ -13,9 +14,12 @@ public class Point implements Writable
 	private ArrayPrimitiveWritable coordinates = null; //array of the values of the coordinates of this point (or sum of points)
 	private IntWritable count; //counts how many points are summed up
 	
+	//private List<Double> coordinates = null;
+	//private int count;
+	
 	public Point() {
 		coordinates = new ArrayPrimitiveWritable();
-		count = new IntWritable(0);
+		count = new IntWritable(1);
 	}
 	
 	Point(Point p) {
@@ -23,6 +27,18 @@ public class Point implements Writable
 		coordinates.set(p.getCoordinates());
 		count.set(p.getCount());
 	}
+	
+/*	public Point(String coordinates){
+		
+		String[] splitCoordinates = coordinates.split(",");
+
+		for(int i=0; i< splitCoordinates.length; i++) {
+			coordinates.add(Double.parseDouble(splitCoordinates[i].trim()));
+		}
+		
+	}
+*/
+	
 	
 	public double[] getCoordinates() { return (double[]) coordinates.get();	}
 	public int getCount() { return (int) count.get(); }
