@@ -1,24 +1,20 @@
 package it.unipi.hadoop;
 
 import it.unipi.hadoop.Iterators.CentroidList;
+import it.unipi.hadoop.writables.Centroid;
+import it.unipi.hadoop.writables.Point;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import it.unipi.hadoop.writables.Centroid;
-import it.unipi.hadoop.writables.Point;
-
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-public class KMeansMapper extends Mapper<Text, Text, Centroid, Point> {
+public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 	
 	/*
 	 * key(Text) -> list of coordinates
@@ -33,11 +29,13 @@ public class KMeansMapper extends Mapper<Text, Text, Centroid, Point> {
 		point = new Point();
 		centList = new CentroidList();
 
-/* 		Recupero centroidi dal cache distribuita dovrebbe funzionare cosi
-		List<URI> uris = Arrays.asList(context.getCacheFiles());
-		for (URI uri: uris){
-			FileSystem fs = FileSystem.get(context.getConfiguration());
-			InputStreamReader ir = new InputStreamReader(fs.open(new Path(uri)));
+ 		//Recupero centroidi dal cache distribuita dovrebbe funzionare cosi
+		//List<URI> uris = Arrays.asList(context.getCacheFiles());
+
+		//for (URI uri: uris){
+			FileSystem fs = FileSystem.get(context.getConfiguration());/*
+			InputStreamReader ir = new InputStreamReader(fs.open(new Path(uri)));*/
+			InputStreamReader ir = new InputStreamReader(fs.open(new Path("Resources/Input/clusters.txt")));
 			BufferedReader br = new BufferedReader(ir);
 
 			String line = br.readLine();
@@ -46,10 +44,10 @@ public class KMeansMapper extends Mapper<Text, Text, Centroid, Point> {
 				line = br.readLine();
 			}
 
-		}*/
+		//}
 	}
 
-	 public void map(Text key, Text value, Context context) {
+	 public void map(LongWritable key, Text value, Context context) {
 		//recupera il punto in input
 		point.parse(value.toString());
 		 try {
