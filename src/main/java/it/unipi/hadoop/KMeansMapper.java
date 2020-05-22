@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 	
@@ -38,9 +39,12 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 			InputStreamReader ir = new InputStreamReader(fs.open(new Path("Resources/Input/clusters.txt")));
 			BufferedReader br = new BufferedReader(ir);
 
+			int i = 0;
 			String line = br.readLine();
 			while (line != null){
 				centList.add(line);
+				System.out.println(Arrays.toString(centList.getCentroids().get(i).getPoint().getCoordinates()));
+				i++;
 				line = br.readLine();
 			}
 
@@ -48,9 +52,9 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 	}
 
 	 public void map(LongWritable key, Text value, Context context) {
-		//recupera il punto in input
-		point.parse(value.toString());
 		 try {
+			 //recupera il punto in input
+			 point.parse(value.toString());
 		 	 //emette il centroide più vicino e il punto
 			 context.write(centList.closest(point), point);
 		 } catch (Exception e) {

@@ -11,6 +11,11 @@ public class Centroid {
 		p = new Point(point);
 	}
 
+	public Centroid(String value){
+		this();
+		p.parse(value);
+	}
+
 	public Point getPoint(){
 		return this.p;
 	}

@@ -18,7 +18,7 @@ public class CentroidList {
     }
 
     public void add(String line){
-        centroids.add(new Centroid());
+        centroids.add(new Centroid(line));
     }
 
     //funzione che trova il centroide più vicino
