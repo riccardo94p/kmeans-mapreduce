@@ -6,8 +6,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 public class KMeansReducer extends Reducer<Centroid, Point, Text, NullWritable>

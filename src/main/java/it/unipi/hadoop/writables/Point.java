@@ -14,9 +14,6 @@ public class Point implements Writable
 	private ArrayPrimitiveWritable coordinates = null; //array of the values of the coordinates of this point (or sum of points)
 	private IntWritable count = null; //counts how many points are summed up
 	
-	//private List<Double> coordinates = null;
-	//private int count;
-	
 	public Point() {
 		coordinates = new ArrayPrimitiveWritable();
 		count = new IntWritable(0);
@@ -27,18 +24,6 @@ public class Point implements Writable
 		setCoordinates(p.getCoordinates());
 		setCount((int)p.getCount());
 	}
-	
-/*	public Point(String coordinates){
-		
-		String[] splitCoordinates = coordinates.split(",");
-
-		for(int i=0; i< splitCoordinates.length; i++) {
-			coordinates.add(Double.parseDouble(splitCoordinates[i].trim()));
-		}
-		
-	}
-*/
-	
 	
 	public double[] getCoordinates() { return (double[]) coordinates.get();	}
 	public double getCount() { return (double) count.get(); }
