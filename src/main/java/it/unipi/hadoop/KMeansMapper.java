@@ -43,6 +43,7 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 			String line = br.readLine();
 			while (line != null){
 				centList.add(line);
+				System.out.println(centList.getCentroids().get(i).getId().toString());
 				System.out.println(Arrays.toString(centList.getCentroids().get(i).getPoint().getCoordinates()));
 				i++;
 				line = br.readLine();
@@ -56,6 +57,7 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 			 //recupera il punto in input
 			 point.parse(value.toString());
 		 	 //emette il centroide più vicino e il punto
+			 //System.out.println(centList.closest(point).getId().toString());
 			 context.write(centList.closest(point), point);
 		 } catch (Exception e) {
 			 e.printStackTrace();

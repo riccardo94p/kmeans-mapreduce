@@ -25,6 +25,7 @@ public class KMeans
 		job.setMapperClass(KMeansMapper.class);
 		job.setMapOutputKeyClass(Centroid.class);
 		job.setMapOutputValueClass(Point.class);
+
 		//job.setCombinerClass(KMeansCombiner.class);
 		job.setReducerClass(KMeansReducer.class);
 		
