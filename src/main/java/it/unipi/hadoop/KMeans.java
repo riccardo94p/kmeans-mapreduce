@@ -26,7 +26,7 @@ public class KMeans
 		job.setMapOutputKeyClass(Centroid.class);
 		job.setMapOutputValueClass(Point.class);
 
-		//job.setCombinerClass(KMeansCombiner.class);
+		job.setCombinerClass(KMeansCombiner.class);
 		job.setReducerClass(KMeansReducer.class);
 		
 		//setta i path di input e output
