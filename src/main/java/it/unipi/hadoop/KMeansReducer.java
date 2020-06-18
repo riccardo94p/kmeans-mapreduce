@@ -33,8 +33,6 @@ public class KMeansReducer extends Reducer<Centroid, Point, Text, NullWritable>
             Point p = it.next();
             pTot.add(p);
         }
-        /*System.out.println(Arrays.toString(pTot.getCoordinates()));
-        System.out.println(pTot.getCount());*/
 
         //setta il nuovo centroide con id e media dei punti nel cluster
         newKey.set(new Centroid(key.getId(), computeMean(pTot)).toString());

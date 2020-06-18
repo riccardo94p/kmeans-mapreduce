@@ -3,16 +3,14 @@ package it.unipi.hadoop;
 import it.unipi.hadoop.Iterators.CentroidList;
 import it.unipi.hadoop.writables.Centroid;
 import it.unipi.hadoop.writables.Point;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Arrays;
 
 public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
@@ -34,8 +32,13 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 		//List<URI> uris = Arrays.asList(context.getCacheFiles());
 
 		//for (URI uri: uris){
-			FileSystem fs = FileSystem.get(context.getConfiguration());/*
-			InputStreamReader ir = new InputStreamReader(fs.open(new Path(uri)));*/
+
+			//InputStreamReader ir = new InputStreamReader(fs.open(new Path(uri)));
+			//per renderlo iterativo bisogna passare i punti in un altro modo (esempio conf.setStrings(..)) perchè allo stato attuale legge sempre i punti iniziali
+			/*System.out.println("################### TEST  ###########################");
+			System.out.println(context.getConfiguration().get("centroids"));
+
+			FileSystem fs = FileSystem.get(context.getConfiguration());
 			InputStreamReader ir = new InputStreamReader(fs.open(new Path("Resources/Input/clusters.txt")));
 			BufferedReader br = new BufferedReader(ir);
 
@@ -47,7 +50,13 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 				System.out.println(Arrays.toString(centList.getCentroids().get(i).getPoint().getCoordinates()));
 				i++;
 				line = br.readLine();
-			}
+			}*/
+		BufferedReader reader = new BufferedReader(new StringReader(context.getConfiguration().get("centroids")));
+		String line = reader.readLine();
+		while(line != null) {
+			centList.add(line);
+			line = reader.readLine();
+		}
 
 		//}
 	}
