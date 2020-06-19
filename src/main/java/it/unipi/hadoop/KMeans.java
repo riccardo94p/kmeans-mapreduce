@@ -98,6 +98,8 @@ public class KMeans
 
 	public static void main(String[] args) throws Exception
 	{
+		long start = System.currentTimeMillis();
+
 		final Configuration conf = new Configuration();
 
 		int iter = 0;
@@ -112,7 +114,6 @@ public class KMeans
 
 			conf.set("centroids", centroids);
 
-			//job deve essere creato DOPO aver finito di impostare tutti i parametri della configurazione
 			final Job job = createJob(conf, "k-means");
 			job.waitForCompletion(true);
 
@@ -121,8 +122,11 @@ public class KMeans
 			//read new centroids
 			centroids = readCentroids(conf, "Resources/Output/part-r-00000");
 		}
+		long end = System.currentTimeMillis();
+		float elapsedTime = (end - start)/1000f; //convert to seconds
 
-		System.out.println("\n######################### RESULT ##########################");
-		System.out.println("K-Means MapReduce converged after "+iter+" iterations.\n");
+		System.out.println("\n######################### RESULTS ##########################");
+		System.out.println("K-Means MapReduce converged after "+iter+" iterations.");
+		System.out.println("Elapsed Time: "+elapsedTime+" seconds. \n");
 	}
 }
