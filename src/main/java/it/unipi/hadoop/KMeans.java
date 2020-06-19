@@ -1,5 +1,6 @@
 package it.unipi.hadoop;
 
+import it.unipi.hadoop.Iterators.CentroidList;
 import it.unipi.hadoop.writables.Centroid;
 import it.unipi.hadoop.writables.Point;
 import org.apache.hadoop.conf.Configuration;
@@ -9,15 +10,16 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-
 import java.io.*;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KMeans
 {
-	public final static int MAX_ITER = 3;
-	public final static float THRESHOLD = 0.1f;
+	public final static int MAX_ITER = 10;
+	public final static double THRESHOLD = 0.2; //java requires F or f after float value otherwise it treats is as double
+	public static int NUM_CENTROIDS = 0;
 
 	private static Job createJob(Configuration conf, String name) throws IOException {
 		Job job = new Job(conf, name);
@@ -55,12 +57,43 @@ public class KMeans
 			i++;
 			line = br.readLine();
 		}
+		//set the number of centroids K
+		if(NUM_CENTROIDS == 0) NUM_CENTROIDS = i;
+
 		//removes unwanted characters from output file
 		clusters = clusters.replace("[", "");
 		clusters = clusters.replace("]", "");
 		clusters = clusters.replace(",", "");
 
 		return clusters;
+	}
+
+	//computes the difference between the new centroids and the ones of the previous iteration
+	//if the variation is under a certain threshold, we can consider the algorithm as converged
+	private static double computeVariation(String prec, String curr) throws Exception {
+		if(prec.equals("") || curr.equals("")) return Double.MAX_VALUE;
+
+		CentroidList old = new CentroidList();
+		CentroidList current = new CentroidList();
+
+		BufferedReader reader = new BufferedReader(new StringReader(prec));
+		BufferedReader reader2 = new BufferedReader(new StringReader(curr));
+		String line = reader.readLine(), line2 = reader2.readLine();
+
+		while(line != null && line2 != null) {
+			old.add(line);
+			current.add(line2);
+
+			line = reader.readLine();
+			line2 = reader2.readLine();
+		}
+
+		double variation = 0.0;
+
+		for(int i =0; i<old.getCentroids().size(); i++)
+			variation += old.getCentroids().get(i).getPoint().getDistance(current.getCentroids().get(i).getPoint());
+
+		return variation;
 	}
 
 	public static void main(String[] args) throws Exception
@@ -70,9 +103,12 @@ public class KMeans
 		int iter = 0;
 		String centroids = readCentroids(conf, "Resources/Input/clusters.txt");
 		String oldCentroids = "";
+		double var = 0.0;
 
-		while(iter < MAX_ITER) {
-			System.out.println("Iteration "+iter);
+		while(iter < MAX_ITER && ((var = computeVariation(oldCentroids, centroids)) > THRESHOLD)) {
+			iter++;
+			System.out.println("\n############## Iteration "+iter+" #######################");
+			System.out.println("###### VARIATION: "+ var+"\n");
 
 			conf.set("centroids", centroids);
 
@@ -84,8 +120,9 @@ public class KMeans
 
 			//read new centroids
 			centroids = readCentroids(conf, "Resources/Output/part-r-00000");
-
-			iter++;
 		}
+
+		System.out.println("\n######################### RESULT ##########################");
+		System.out.println("K-Means MapReduce converged after "+iter+" iterations.\n");
 	}
 }

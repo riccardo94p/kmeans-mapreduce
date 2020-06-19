@@ -66,7 +66,6 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 			 //recupera il punto in input
 			 point.parse(value.toString());
 		 	 //emette il centroide più vicino e il punto
-			 //System.out.println(centList.closest(point).getId().toString());
 			 context.write(centList.closest(point), point);
 		 } catch (Exception e) {
 			 e.printStackTrace();
