@@ -1,20 +1,19 @@
 import getopt
 import sys
 import time
+import subprocess
 import numpy as np
 from pyspark import SparkContext
 
-import subprocess
-
-#filename = 'output.txt'
-
 #Default parameters
-points = 10
-dimension = 2
+dimension = 0
 maxIterations = 10
 threshold = 0.5
 k = 4
 seed = 1
+master = "local"
+inputPath = "Resources/Input/points_1000x7.txt"
+outputPath = "Resources/Output/Spark"
 
 def assignToCentroid(pointString, centroids):
 	#Convert pointString to float np.array
@@ -26,52 +25,57 @@ def assignToCentroid(pointString, centroids):
 	#Append 1 at the end to be used as counter (of points) in reduce
 	return index, np.append(point, [1])
 
-if __name__ == "__main__":#TODO: testare se il parsing degli argomenti funziona (soprattutto il float)
-	options, remainder = getopt.getopt(sys.argv[1:], 'o:p:d:k:i:t:s:', ['output=', 'num_points=', 'dimension=', 'num_k=', 'iterations=', 'threshold=', 'seed='])
+if __name__ == "__main__":#TODO: testare se il parsing dei parametri funziona
+	options, remainder = getopt.getopt(sys.argv[1:], 'o:d:k:j:t:s:m:', ['input=', 'output=', 'dimension=', 'num_k=', 'iterations=', 'threshold=', 'seed=', 'master='])
 	print('OPTIONS :', options)
 	for opt, arg in options:
-		if opt in ('-o', '--output'):
-			filename = arg
-		elif opt in ('-p', '--num_points'):
-			points = int(arg)
+		if opt in ('-i', '--input'):
+			inputPath = arg
+		elif opt in ('-o', '--output'):
+			outputPath = arg
 		elif opt in ('-d', '--dimension'):
 			dimension = int(arg)
 		elif opt in ('-k', '--num_k'):
 			k = int(arg)
-		elif opt in ('-i', '--iterations'):
+		elif opt in ('-j', '--iterations'):
 			maxIterations = int(arg)
 		elif opt in ('-t', '--threshold'):
 			threshold = float(arg)
 		elif opt in ('-s', '--seed'):
 			seed = int(arg)
-	
-	#TODO: controllare che k <= p
+		elif opt in ('-m', '--master'):
+			master = arg
 
-	master = "local"#TODO: passarlo come input
+	start_time = time.time()
 	sc = SparkContext(master, "k-Means")
 	
-	#Elimino i risultati dell'esecuzione precedente
-	subprocess.call(["hadoop", "fs", "-rm", "-r", "spark-test/test_output"])
+	#Clean output directory
+	subprocess.call(["hadoop", "fs", "-rm", "-r", outputPath])
 	
 	#Load points from file in HDFS
-	pointStrings = sc.textFile("spark-test/points_10x2.txt_test")
-	#TODO: prendere solo le prime "points" righe
+	pointStrings = sc.textFile(inputPath)
+	
+	#Get the default points' dimension
+	if dimension == 0:
+		aPoint = pointStrings.takeSample(False, 1, seed)
+		dimension = np.fromstring(aPoint[0], sep=' ').shape[0]
 	
 	#Select k random start points
 	sample = pointStrings.takeSample(False, k, seed)
 	centroids = np.array([np.fromstring(x, count=dimension, sep=' ') for x in sample])
 	br_centroids = sc.broadcast(centroids)
 	
+	
 	iteration = 1
 	delta = float("inf")
 	
 	while True:
 		#Perform map-reduce
-		centroidPointPairs = pointStrings.map(lambda x: assignToCentroid(x, br_centroids.value)).cache()#TODO: Vedere se cache qui serve
-		newCentroidsTmp = centroidPointPairs.reduceByKey(lambda x, y: np.add(x, y)).mapValues(lambda x: (np.divide(x, x[-1]))[0:-1]).collect()
+		centroidPointPairs = pointStrings.map(lambda x: assignToCentroid(x, br_centroids.value))
+		newCentroidsRDD = centroidPointPairs.reduceByKey(lambda x, y: np.add(x, y)).mapValues(lambda x: (np.divide(x, x[-1]))[0:-1])
 		
 		#Compute centroids' movements
-		newCentroids = np.array([x[1] for x in newCentroidsTmp])#Build ndarray from a list of key-value pairs
+		newCentroids = np.array([x[1] for x in newCentroidsRDD.collect()])#Build ndarray from a list of key-value pairs
 		delta = np.linalg.norm(br_centroids.value - newCentroids, axis=1).sum()
 		
 		#Broadcast new centroids
@@ -89,10 +93,6 @@ if __name__ == "__main__":#TODO: testare se il parsing degli argomenti funziona 
 		iteration += 1
 	
 	#Iterative part ended
-	print('Algorithm terminated after', iteration, 'iterations. Delta value is:', delta)
-	
-	#delta.saveAsTextFile("spark-test/test_output")
-
-	start_time = time.time()
-	print("Done in %s seconds" % (time.time() - start_time))
+	newCentroidsRDD.saveAsTextFile(outputPath)
+	print('Algorithm terminated in', (time.time() - start_time), 'seconds after', iteration, 'iterations. Delta is:', delta)
 
