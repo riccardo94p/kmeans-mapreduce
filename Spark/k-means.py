@@ -11,13 +11,14 @@ import subprocess
 #filename = 'output.txt'
 
 def assignToCentroid(pointString, centroids):
-	#convert pointString to float np.array
+	#Convert pointString to float np.array
 	point = np.fromstring(pointString, dtype=float, sep=' ')
 	
-	#get the index of the centroid the point belongs to
+	#Get the index of the centroid the point belongs to
 	index = np.linalg.norm(centroids - point, axis=1).argmin()
 	
-	return index, point
+	#Append 1 at the end to be used as counter (of points) in reduce
+	return index, np.append(point, [1])
 
 def parsePoint(row):
 	tokens = row.split(' ')
@@ -42,13 +43,15 @@ if __name__ == "__main__":
 	
 	#Carico i centroidi (versione di test)
 	centroids = np.array([[0,0],[1,0],[0,1],[1,1]])
+	br_centroids = sc.broadcast(centroids)
 	#Fine carico i centroidi
 	
 
 	pointStrings = sc.textFile("spark-test/points_10x2.txt")
-	res = pointStrings.map(lambda x: assignToCentroid(x, centroids))
+	centroidPointPairs = pointStrings.map(lambda x: assignToCentroid(x, br_centroids.value)).cache()#TODO: Vedere se cache qui serve
+	newCentroids = centroidPointPairs.reduceByKey(lambda x, y: np.add(x, y)).mapValues(lambda x: (np.divide(x, x[-1]))[0:-1])
 	
-	res.saveAsTextFile("spark-test/test_output")
+	newCentroids.saveAsTextFile("spark-test/test_output")
 
 	start_time = time.time()
 	print("Done in %s seconds" % (time.time() - start_time))
