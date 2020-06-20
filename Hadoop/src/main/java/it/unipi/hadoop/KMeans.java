@@ -36,7 +36,7 @@ public class KMeans
 		//la cartella di input va prima create sul dfs con: hadoop fs mkdir -p /Resource/Input
 		//e vanno inseriti i file di input con: hadoop fs -put ./Resources/Input/points.txt ./Resources/Input/clusters.txt /Resources/Input
 		//oppure lo si può fare direttamente dall'interfaccia online
-		FileInputFormat.addInputPath(job, new Path("Resources/Input/points.txt"));
+		FileInputFormat.addInputPath(job, new Path("Resources/Input/points_100000x3.txt"));
 		FileSystem.get(conf).delete(new Path("Resources/Output"), true);
 		FileOutputFormat.setOutputPath(job, new Path("Resources/Output"));
 
@@ -103,7 +103,7 @@ public class KMeans
 		final Configuration conf = new Configuration();
 
 		int iter = 0;
-		String centroids = readCentroids(conf, "Resources/Input/clusters.txt");
+		String centroids = readCentroids(conf, "Resources/Input/centroidsx3.txt");
 		String oldCentroids = "";
 		double var = 0.0;
 

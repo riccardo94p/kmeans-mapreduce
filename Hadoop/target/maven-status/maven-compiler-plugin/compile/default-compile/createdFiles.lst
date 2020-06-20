@@ -1,0 +1,7 @@
+it/unipi/hadoop/Iterators/CentroidList.class
+it/unipi/hadoop/KMeansMapper.class
+it/unipi/hadoop/KMeans.class
+it/unipi/hadoop/KMeansCombiner.class
+it/unipi/hadoop/writables/Point.class
+it/unipi/hadoop/KMeansReducer.class
+it/unipi/hadoop/writables/Centroid.class
