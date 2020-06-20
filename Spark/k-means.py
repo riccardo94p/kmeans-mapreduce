@@ -6,17 +6,19 @@ from pyspark import SparkContext
 
 import subprocess
 
-#points = 10
-#dimension = 2
 #filename = 'output.txt'
 
 #Default parameters
+points = 10
+dimension = 2
 maxIterations = 10
 threshold = 0.5
+k = 4
+seed = 1
 
 def assignToCentroid(pointString, centroids):
 	#Convert pointString to float np.array
-	point = np.fromstring(pointString, dtype=float, sep=' ')
+	point = np.fromstring(pointString, count=dimension, sep=' ')
 	
 	#Get the index of the centroid the point belongs to
 	index = np.linalg.norm(centroids - point, axis=1).argmin()
@@ -24,33 +26,41 @@ def assignToCentroid(pointString, centroids):
 	#Append 1 at the end to be used as counter (of points) in reduce
 	return index, np.append(point, [1])
 
-if __name__ == "__main__":
-	options, remainder = getopt.getopt(sys.argv[1:], 'o:n:d:i:t:', ['output=', 'num_points=', 'dimension=', 'iterations=', 'threshold='])
+if __name__ == "__main__":#TODO: testare se il parsing degli argomenti funziona (soprattutto il float)
+	options, remainder = getopt.getopt(sys.argv[1:], 'o:p:d:k:i:t:s:', ['output=', 'num_points=', 'dimension=', 'num_k=', 'iterations=', 'threshold=', 'seed='])
 	print('OPTIONS :', options)
 	for opt, arg in options:
 		if opt in ('-o', '--output'):
 			filename = arg
-		elif opt in ('-n', '--num_points'):
+		elif opt in ('-p', '--num_points'):
 			points = int(arg)
 		elif opt in ('-d', '--dimension'):
 			dimension = int(arg)
+		elif opt in ('-k', '--num_k'):
+			k = int(arg)
 		elif opt in ('-i', '--iterations'):
 			maxIterations = int(arg)
 		elif opt in ('-t', '--threshold'):
 			threshold = float(arg)
+		elif opt in ('-s', '--seed'):
+			seed = int(arg)
+	
+	#TODO: controllare che k <= p
 
-	master = "local"
+	master = "local"#TODO: passarlo come input
 	sc = SparkContext(master, "k-Means")
 	
 	#Elimino i risultati dell'esecuzione precedente
 	subprocess.call(["hadoop", "fs", "-rm", "-r", "spark-test/test_output"])
 	
-	#Carico i centroidi (versione di test)
-	centroids = np.array([[0,0],[1,0],[0,1],[1,1]])
-	br_centroids = sc.broadcast(centroids)
-	#Fine carico i centroidi
-	
+	#Load points from file in HDFS
 	pointStrings = sc.textFile("spark-test/points_10x2.txt_test")
+	#TODO: prendere solo le prime "points" righe
+	
+	#Select k random start points
+	sample = pointStrings.takeSample(False, k, seed)
+	centroids = np.array([np.fromstring(x, count=dimension, sep=' ') for x in sample])
+	br_centroids = sc.broadcast(centroids)
 	
 	iteration = 1
 	delta = float("inf")
