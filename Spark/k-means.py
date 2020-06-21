@@ -25,7 +25,7 @@ def assignToCentroid(pointString, centroids):
 	#Append 1 at the end to be used as counter (of points) in reduce
 	return index, np.append(point, [1])
 
-if __name__ == "__main__":#TODO: testare se il parsing dei parametri funziona
+if __name__ == "__main__":
 	options, remainder = getopt.getopt(sys.argv[1:], 'o:d:k:j:t:s:m:', ['input=', 'output=', 'dimension=', 'num_k=', 'iterations=', 'threshold=', 'seed=', 'master='])
 	print('OPTIONS :', options)
 	for opt, arg in options:
@@ -55,10 +55,12 @@ if __name__ == "__main__":#TODO: testare se il parsing dei parametri funziona
 	#Load points from file in HDFS
 	pointStrings = sc.textFile(inputPath)
 	
-	#Get the default points' dimension
-	if dimension == 0:
-		aPoint = pointStrings.takeSample(False, 1, seed)
-		dimension = np.fromstring(aPoint[0], sep=' ').shape[0]
+	#Get the native points' dimension
+	aPoint = pointStrings.takeSample(False, 1, seed)
+	nativeDimension = np.fromstring(aPoint[0], sep=' ').shape[0]
+	if dimension == 0 or dimension > nativeDimension:
+		print('Dimension set to', nativeDimension)
+		dimension = nativeDimension
 	
 	#Select k random start points
 	sample = pointStrings.takeSample(False, k, seed)
