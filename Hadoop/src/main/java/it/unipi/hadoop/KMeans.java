@@ -18,7 +18,7 @@ import java.util.List;
 public class KMeans
 {
 	public final static int MAX_ITER = 10;
-	public final static double THRESHOLD = 0.2; //java requires F or f after float value otherwise it treats is as double
+	public final static double THRESHOLD = 0.01;
 	public static int NUM_CENTROIDS = 0;
 
 	private static Job createJob(Configuration conf, String name) throws IOException {
@@ -31,6 +31,7 @@ public class KMeans
 
 		job.setCombinerClass(KMeansCombiner.class);
 		job.setReducerClass(KMeansReducer.class);
+
 
 		//setta i path di input e output
 		//la cartella di input va prima create sul dfs con: hadoop fs mkdir -p /Resource/Input
@@ -93,7 +94,7 @@ public class KMeans
 		for(int i =0; i<old.getCentroids().size(); i++)
 			variation += old.getCentroids().get(i).getPoint().getDistance(current.getCentroids().get(i).getPoint());
 
-		return variation;
+		return (variation/NUM_CENTROIDS); //returns the mean distance between old and new centroids
 	}
 
 	public static void main(String[] args) throws Exception
@@ -103,9 +104,11 @@ public class KMeans
 		final Configuration conf = new Configuration();
 
 		int iter = 0;
-		String centroids = readCentroids(conf, "Resources/Input/centroidsx3.txt");
+		String centroids = readCentroids(conf, "Resources/Input/centroidsx7.txt");
 		String oldCentroids = "";
 		double var = 0.0;
+		FileSystem fs = FileSystem.get(conf);
+		long FILE_SIZE = fs.getContentSummary(new Path("Resources/Input/points_100000x3.txt")).getLength();
 
 		while(iter < MAX_ITER && ((var = computeVariation(oldCentroids, centroids)) > THRESHOLD)) {
 			iter++;
@@ -113,6 +116,9 @@ public class KMeans
 			System.out.println("###### VARIATION: "+ var+"\n");
 
 			conf.set("centroids", centroids);
+
+			//make sure that all 4 nodes of cluster are used in the mapreduce job
+			conf.set("mapred.max.split.size", Long.toString(FILE_SIZE/4)); // maximum split file size in bytes
 
 			final Job job = createJob(conf, "k-means");
 			job.waitForCompletion(true);

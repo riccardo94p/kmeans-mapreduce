@@ -64,7 +64,6 @@ public class Point implements Writable
 		for(int i = 0; i < coordinatesPoint.length; i++){
 			distance += Math.pow(coordinatesPoint[i] -  coordinatesOtherPoint[i], 2);
 		}
-
 		return Math.sqrt(distance);
 	}
 
