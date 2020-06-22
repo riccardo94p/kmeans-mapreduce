@@ -15,10 +15,11 @@ master = "local"
 inputPath = "Resources/Input/points_1000x7.txt"
 outputPath = "Resources/Output/Spark"
 
-def assignToCentroid(pointString, centroids):
+def parseStrings(pointString):
 	#Convert pointString to float np.array
-	point = np.fromstring(pointString, count=dimension, sep=' ')
-	
+	return np.fromstring(pointString, count=dimension, sep=' ')
+
+def assignToCentroid(point, centroids):
 	#Get the index of the centroid the point belongs to
 	index = np.linalg.norm(centroids - point, axis=1).argmin()
 	
@@ -62,22 +63,23 @@ if __name__ == "__main__":
 		print('Dimension set to', nativeDimension)
 		dimension = nativeDimension
 	
-	#Select k random start points
-	sample = pointStrings.takeSample(False, k, seed)
-	centroids = np.array([np.fromstring(x, count=dimension, sep=' ') for x in sample])
-	br_centroids = sc.broadcast(centroids)
+	#parse points and cache them once
+	pointsDRR = pointStrings.map(parseStrings).cache()
 	
+	#Select k random start points
+	centroids = np.array(pointsDRR.takeSample(False, k, seed))
+	br_centroids = sc.broadcast(centroids)
 	
 	iteration = 1
 	delta = float("inf")
 	
 	while True:
 		#Perform map-reduce
-		centroidPointPairs = pointStrings.map(lambda x: assignToCentroid(x, br_centroids.value))
+		centroidPointPairs = pointsDRR.map(lambda x: assignToCentroid(x, br_centroids.value))
 		newCentroidsRDD = centroidPointPairs.reduceByKey(lambda x, y: np.add(x, y)).mapValues(lambda x: (np.divide(x, x[-1]))[0:-1])
 		
 		#Compute centroids' movements
-		newCentroids = np.array([x[1] for x in newCentroidsRDD.collect()])#Build ndarray from a list of key-value pairs
+		newCentroids = np.array(newCentroidsRDD.sortByKey(ascending=True).values().collect())#Build ndarray from a list of key-value pairs
 		delta = np.linalg.norm(br_centroids.value - newCentroids, axis=1).sum()
 		
 		#Broadcast new centroids
