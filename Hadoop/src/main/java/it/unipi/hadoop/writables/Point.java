@@ -11,8 +11,11 @@ import java.io.IOException;
 
 public class Point implements Writable
 {
-	private ArrayPrimitiveWritable coordinates = null; //array of the values of the coordinates of this point (or sum of points)
-	private IntWritable count = null; //counts how many points are summed up
+	//array of the values of the coordinates of this point (or sum of points)
+	private ArrayPrimitiveWritable coordinates = null;
+	
+	//counts how many points are summed up
+	private IntWritable count = null; 
 	
 	public Point() {
 		coordinates = new ArrayPrimitiveWritable();
@@ -25,12 +28,15 @@ public class Point implements Writable
 		setCount((int)p.getCount());
 	}
 	
+	//Getter and Setter
 	public double[] getCoordinates() { return (double[]) coordinates.get();	}
 	public double getCount() { return (double) count.get(); }
 	public void setCoordinates(double[] vector) { this.coordinates.set(vector); }
 	public void setCount(int c) { this.count.set(c); }
 	
-	public void add(Point p) { //add point p to this
+	
+	//Function to sum a Point with this point
+	public void add(Point p) { 
 		double[] thisPoint = this.getCoordinates();
 		double[] point = p.getCoordinates();
 		
@@ -41,20 +47,22 @@ public class Point implements Writable
 		count.set(this.count.get() + (int) p.getCount());
 	}
 
-	//funzione emettere il Point da Mapper/Combiner
+	//Serialization for emit point
 	@Override
 	public void write(DataOutput dataOutput) throws IOException {
 		coordinates.write(dataOutput);
 		count.write(dataOutput);
 	}
 	
+	//Deserialization
 	@Override
 	public void readFields(DataInput dataInput) throws IOException {
 		coordinates.readFields(dataInput);
 		count.readFields(dataInput);
 	}
 	
-	public double getDistance(Point otherPoint) throws Exception { //computes Euclidean distance between this point and otherPoint
+	//Computes Euclidean distance between this point and otherPoint
+	public double getDistance(Point otherPoint) throws Exception { 
 		double distance = 0.0;
 		double[] coordinatesPoint = this.getCoordinates();
 		double[] coordinatesOtherPoint = otherPoint.getCoordinates();
@@ -67,7 +75,7 @@ public class Point implements Writable
 		return Math.sqrt(distance);
 	}
 
-	//scrive un punto da una stringa
+	//Extracts a Point from a string
 	public void parse(String values){
 		String[] vector = values.split(" ");
 		double[] tmp = new double[vector.length];

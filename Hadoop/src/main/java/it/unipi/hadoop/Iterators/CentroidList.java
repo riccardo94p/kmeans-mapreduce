@@ -17,11 +17,12 @@ public class CentroidList {
         return this.centroids;
     }
 
+    //Function to add a new centroid in the list extracted from a string
     public void add(String line){
         centroids.add(new Centroid(line));
     }
 
-    //funzione che trova il centroide più vicino
+    //Function that finds the nearest centroid from the point passed as argument
     public Centroid closest(Point p) throws Exception {
         double d = Double.POSITIVE_INFINITY;
         Centroid c = new Centroid();
