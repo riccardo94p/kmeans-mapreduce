@@ -22,7 +22,7 @@ public class Centroid implements WritableComparable<Centroid> {
 		p = new Point(point);
 	}
 
-	//costruttore per creare un centroide da una stringa di un file di testo
+	//Constructor to create a centroid from a string of a text file
 	public Centroid(String value){
 		this();
 
@@ -33,31 +33,35 @@ public class Centroid implements WritableComparable<Centroid> {
 		id.set(value.substring(0, index).replace(".", ""));
 		p.parse((value.substring(index + 1)));
 	}
-
+	
+	
+	//Getter
 	public Text getId() {return this.id; }
 
 	public Point getPoint(){
 		return this.p;
 	}
 
-	//funzione per stampare il cluster con id e coordinate del centroide
+	//Function to print the centroid (id + coordinates)
 	@Override
 	public String toString() {
 		return this.getId() + ". " + Arrays.toString(this.getPoint().getCoordinates());
 	}
 
+	//Function to compare two centroids (due to WritableComparable implementation)
 	@Override
 	public int compareTo(Centroid centroid) {
 		return this.id.compareTo(centroid.getId());
 	}
 
-	//serve per emettere il centroide da Mapper/Combiner
+	//Serialization for emit centroid
 	@Override
 	public void write(DataOutput dataOutput) throws IOException {
 		id.write(dataOutput);
 		p.write(dataOutput);
 	}
 
+	//Deserialization
 	//serve per leggere i centroide in ingresso a Mapper/Reducer/Combiner
 	@Override
 	public void readFields(DataInput dataInput) throws IOException {

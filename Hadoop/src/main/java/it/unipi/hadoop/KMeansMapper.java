@@ -18,6 +18,7 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 	private CentroidList centList;
 	private Point point;
 
+	//Function to initialize Point and CentroidList before map function
 	@Override
 	protected void setup(Context context) throws IOException {
 		point = new Point();
@@ -31,11 +32,12 @@ public class KMeansMapper extends Mapper<LongWritable, Text, Centroid, Point> {
 		}
 	}
 
+	//Map function
 	 public void map(LongWritable key, Text value, Context context) {
 		 try {
-			 //recupera il punto in input
+			 //retrieve the input point
 			 point.parse(value.toString());
-		 	 //emette il centroide più vicino e il punto
+		 	 //emit the nearest centroid to the input point
 			 context.write(centList.closest(point), point);
 		 } catch (Exception e) {
 			 e.printStackTrace();
