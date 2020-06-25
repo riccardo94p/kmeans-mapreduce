@@ -40,6 +40,8 @@ public class KMeans
 		job.setCombinerClass(KMeansCombiner.class);
 		job.setReducerClass(KMeansReducer.class);
 
+		//INPUT_PATH and OUTPUT_PATH define respectively the path where 
+		//to find the input and the path where to write the output
 		FileInputFormat.addInputPath(job, new Path(INPUT_PATH+"/"+inputPointsFile));
 		FileSystem.get(conf).delete(new Path(OUTPUT_PATH), true);
 		FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));
@@ -112,6 +114,7 @@ public class KMeans
 		final Configuration conf = new Configuration();
 
 		int iter = 0;
+		//read centroids from input files
 		String centroids = readCentroids(conf, INPUT_PATH+"/"+inputCentroidsFile);//"Resources/Input/centroidsx7.txt");
 		String oldCentroids = "";
 		double var = 0.0;
