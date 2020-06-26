@@ -31,6 +31,7 @@ Accept:*/*
 import openstack
 import sched, time
 import datetime
+import threading
 from flask import Flask
 from flask import request
 from flask_restful import Resource, Api
@@ -65,6 +66,7 @@ class OpenStackHandler(Resource):
             return "Bad request", 400
 
         server_schedule(content['image'], content['network'], content['flavor'], content['start'], content['end'], start_delay, end_delay)
+
         return "Success", 200
 
 
@@ -77,7 +79,7 @@ conn = None
 
 def create_server(image_name, network_name, flavor_name, start_peak, end_peak):
     global conn
-    print("Create Server:")
+    print("Create Server: serv:" + start_peak + "-" + end_peak)
 
     image = conn.compute.find_image(image_name)
     network = conn.network.find_network(network_name)
@@ -89,16 +91,13 @@ def create_server(image_name, network_name, flavor_name, start_peak, end_peak):
                                         networks=[{"uuid": network.id}])  # , key_name=keypair.name)
 
     server = conn.compute.wait_for_server(server)
-    print(server.name)
 
 
 def delete_server(start_peak, end_peak):
     global conn
-    print("Delete Server:")
+    print("Delete Server: serv:" + start_peak + "-" + end_peak)
 
     server = conn.compute.find_server("serv:" + start_peak + "-" + end_peak)
-
-    print(server.name)
 
     conn.compute.delete_server(server)
 
@@ -136,7 +135,9 @@ def server_schedule(image, network, flavor, start_peak, end_peak, start_delay, e
     scheduler.enter(start_delay, 1, create_server, (image, network, flavor, start_peak, end_peak,))
     scheduler.enter(end_delay, 2, delete_server, (start_peak, end_peak,))
 
-    scheduler.run()
+    t = threading.Thread(target=scheduler.run)
+    t.start()
+
 
 
 if __name__ == '__main__':
