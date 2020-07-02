@@ -99,5 +99,4 @@ if __name__ == "__main__":
 	#Iterative part ended
 	newCentroidsRDD.saveAsTextFile(outputPath)
 	print('Algorithm terminated in', (time.time() - start_time), 'seconds after', iteration, 'iterations. Delta is:', delta)
-	print(sc._conf.getAll())
 
