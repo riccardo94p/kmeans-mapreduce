@@ -80,7 +80,7 @@ if __name__ == "__main__":
 		
 		#Compute centroids' movements
 		newCentroids = np.array(newCentroidsRDD.sortByKey(ascending=True).values().collect())#Build ndarray from a list of key-value pairs
-		delta = np.linalg.norm(br_centroids.value - newCentroids, axis=1).sum()
+		delta = np.linalg.norm(br_centroids.value - newCentroids, axis=1).mean()
 		
 		#Broadcast new centroids
 		br_centroids = sc.broadcast(newCentroids)
@@ -99,4 +99,5 @@ if __name__ == "__main__":
 	#Iterative part ended
 	newCentroidsRDD.saveAsTextFile(outputPath)
 	print('Algorithm terminated in', (time.time() - start_time), 'seconds after', iteration, 'iterations. Delta is:', delta)
+	print(sc._conf.getAll())
 
