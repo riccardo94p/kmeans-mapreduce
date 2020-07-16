@@ -48,6 +48,7 @@ if __name__ == "__main__":
 			master = arg
 
 	start_time = time.time()
+	
 	sc = SparkContext(master, "k-Means")
 	
 	#Clean output directory
@@ -63,8 +64,12 @@ if __name__ == "__main__":
 		print('Dimension set to', nativeDimension)
 		dimension = nativeDimension
 	
+	#points_time = (time.time() - start_time)
+	
 	#parse points and cache them once
 	pointsDRR = pointStrings.map(parseStrings).cache()
+	
+	#start_time = time.time()
 	
 	#Select k random start points
 	centroids = np.array(pointsDRR.takeSample(False, k, seed))
@@ -72,6 +77,10 @@ if __name__ == "__main__":
 	
 	iteration = 1
 	delta = float("inf")
+	
+	#sample_time = (time.time() - start_time)
+	
+	#start_time = time.time()
 	
 	while True:
 		#Perform map-reduce
@@ -96,7 +105,10 @@ if __name__ == "__main__":
 		
 		iteration += 1
 	
+	elapsed_time = (time.time() - start_time)
+	
+	print('Algorithm terminated in', elapsed_time, 'seconds after', iteration, 'iterations. Delta is:', delta)
+	#print("Points time: ", points_time, "; takeSample time: ", sample_time)
+	
 	#Iterative part ended
 	newCentroidsRDD.saveAsTextFile(outputPath)
-	print('Algorithm terminated in', (time.time() - start_time), 'seconds after', iteration, 'iterations. Delta is:', delta)
-

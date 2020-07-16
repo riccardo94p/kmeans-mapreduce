@@ -13,3 +13,5 @@ k, n, d, time, iterations, delta
 7 100000 5 51.169 4 0.0250
 7 100000 6 50.711 4 0.0243
 7 100000 7 48.336 3 0.0278
+
+7 1000000 3 Algorithm terminated in 65.30237698554993 seconds after 5 iterations. Delta is: 0.026446939062068204
