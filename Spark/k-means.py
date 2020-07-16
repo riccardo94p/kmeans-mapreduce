@@ -112,3 +112,8 @@ if __name__ == "__main__":
 	
 	#Iterative part ended
 	newCentroidsRDD.saveAsTextFile(outputPath)
+
+    f= open("spark result.txt","a+")
+    results = str(k) + " " + inputPath + " " + str(elapsed_time) + " " + str(iteration)
+    f.write(result)
+    f.close()
