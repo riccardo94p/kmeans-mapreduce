@@ -28,7 +28,7 @@ all:
 	spark-submit k-means.py --input "Resources/Input/points_1000000x3.txt" --output "Resources/Output/Spark_param_test" --dimension 3 --num_k 7 --iterations 10 --threshold 0.03 --seed 2 --master yarn
 	stop-dfs.sh && stop-yarn.sh
 	start-dfs.sh && start-yarn.sh
-	spark-submit k-means.py --input "Resources/Input/points_1000000x3.txt" --output "Resources/Output/Spark_param_test" --dimension 3 --num_k 7 --iterations 10 --threshold 0.03 --seed 2 --master yarn
+	spark-submit k-means.py --input "Resources/Input/points_10000000x3.txt" --output "Resources/Output/Spark_param_test" --dimension 3 --num_k 7 --iterations 10 --threshold 0.03 --seed 2 --master yarn
 	stop-dfs.sh && stop-yarn.sh
 	start-dfs.sh && start-yarn.sh
 	spark-submit k-means.py --input "Resources/Input/points_100000x3.txt" --output "Resources/Output/Spark_param_test" --dimension 3 --num_k 7 --iterations 10 --threshold 0.03 --seed 2 --master yarn

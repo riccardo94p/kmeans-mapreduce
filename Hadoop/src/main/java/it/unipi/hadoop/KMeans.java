@@ -40,8 +40,6 @@ public class KMeans
 		job.setCombinerClass(KMeansCombiner.class);
 		job.setReducerClass(KMeansReducer.class);
 
-		//INPUT_PATH and OUTPUT_PATH define respectively the path where 
-		//to find the input and the path where to write the output
 		FileInputFormat.addInputPath(job, new Path(INPUT_PATH+"/"+inputPointsFile));
 		FileSystem.get(conf).delete(new Path(OUTPUT_PATH), true);
 		FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));
@@ -118,8 +116,8 @@ public class KMeans
 		String centroids = readCentroids(conf, INPUT_PATH+"/"+inputCentroidsFile);//"Resources/Input/centroidsx7.txt");
 		String oldCentroids = "";
 		double var = 0.0;
-		FileSystem fs = FileSystem.get(conf);
-		long FILE_SIZE = fs.getContentSummary(new Path(INPUT_PATH+"/"+inputPointsFile)).getLength();
+		//FileSystem fs = FileSystem.get(conf);
+		//long FILE_SIZE = fs.getContentSummary(new Path(INPUT_PATH+"/"+inputPointsFile)).getLength();
 
 		while(iter < MAX_ITER && ((var = computeVariation(oldCentroids, centroids)) > THRESHOLD)) {
 			iter++;
@@ -129,7 +127,7 @@ public class KMeans
 			conf.set("centroids", centroids);
 
 			//make sure that all 4 nodes of cluster are used in the mapreduce job
-			conf.set("mapreduce.input.fileinputformat.split.maxsize", Long.toString(FILE_SIZE/4)); // maximum split file size in bytes
+			//conf.set("mapreduce.input.fileinputformat.split.maxsize", Long.toString(FILE_SIZE/4)); // maximum split file size in bytes
 
 			final Job job = createJob(conf, "k-means");
 			job.waitForCompletion(true);
@@ -146,9 +144,5 @@ public class KMeans
 		try {
 			Files.write(Paths.get("hadoop_results.txt"), text.getBytes(), StandardOpenOption.APPEND);
 		}catch (IOException e) { e.printStackTrace(); }
-		/*
-		System.out.println("\n######################### RESULTS ##########################");
-		System.out.println("K-Means MapReduce converged after "+iter+" iterations.");
-		System.out.println("Elapsed Time: "+elapsedTime+" seconds. \n");*/
 	}
 }
