@@ -24,8 +24,11 @@ public class CentroidList {
 
     //Function that finds the nearest centroid from the point passed as argument
     public Centroid closest(Point p) throws Exception {
+    	if(centroids.size() == 0)
+    		return new Centroid();
+    	
         double d = Double.POSITIVE_INFINITY;
-        Centroid c = new Centroid();
+        Centroid c = null;
         
         for(int i = 0; i < centroids.size(); i++){
             if(d > p.getDistance(centroids.get(i).getPoint())) {
