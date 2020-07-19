@@ -62,7 +62,6 @@ public class Centroid implements WritableComparable<Centroid> {
 	}
 
 	//Deserialization
-	//serve per leggere i centroide in ingresso a Mapper/Reducer/Combiner
 	@Override
 	public void readFields(DataInput dataInput) throws IOException {
 		id.readFields(dataInput);

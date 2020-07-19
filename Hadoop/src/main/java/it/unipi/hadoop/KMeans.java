@@ -116,8 +116,6 @@ public class KMeans
 		String centroids = readCentroids(conf, INPUT_PATH+"/"+inputCentroidsFile);//"Resources/Input/centroidsx7.txt");
 		String oldCentroids = "";
 		double var = 0.0;
-		//FileSystem fs = FileSystem.get(conf);
-		//long FILE_SIZE = fs.getContentSummary(new Path(INPUT_PATH+"/"+inputPointsFile)).getLength();
 
 		while(iter < MAX_ITER && ((var = computeVariation(oldCentroids, centroids)) > THRESHOLD)) {
 			iter++;
@@ -125,9 +123,6 @@ public class KMeans
 			System.out.println("###### VARIATION: "+ var+"\n");
 
 			conf.set("centroids", centroids);
-
-			//make sure that all 4 nodes of cluster are used in the mapreduce job
-			//conf.set("mapreduce.input.fileinputformat.split.maxsize", Long.toString(FILE_SIZE/4)); // maximum split file size in bytes
 
 			final Job job = createJob(conf, "k-means");
 			job.waitForCompletion(true);

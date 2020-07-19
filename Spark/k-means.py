@@ -64,16 +64,16 @@ if __name__ == "__main__":
 		print('Dimension set to', nativeDimension)
 		dimension = nativeDimension
 	
-	points_time = (time.time() - start_time)
+	#points_time = (time.time() - start_time)
 	
-	start_cache_time = time.time()
+	#start_cache_time = time.time()
 	
 	#parse points and cache them once
 	pointsDRR = pointStrings.map(parseStrings).cache()
 	
-	cache_time = (time.time() - start_cache_time)
+	#cache_time = (time.time() - start_cache_time)
 	
-	start_sample_time = time.time()
+	#start_sample_time = time.time()
 	
 	#Select k random start points
 	centroids = np.array(pointsDRR.takeSample(False, k, seed))
@@ -82,7 +82,7 @@ if __name__ == "__main__":
 	iteration = 1
 	delta = float("inf")
 	
-	sample_time = (time.time() - start_sample_time)
+	#sample_time = (time.time() - start_sample_time)
 	
 	while True:
 		#Perform map-reduce
