@@ -39,7 +39,7 @@ from flask_restful import Resource, Api
 # Begin Flask
 app = Flask(__name__)
 api = Api(app)
-
+# server di flask 
 class OpenStackHandler(Resource):
     def post(self):
         if not request.is_json:
@@ -102,9 +102,9 @@ def create_flavors():
     print("Creating flavors...")
     for f in conn.compute.flavors():
         if f.name == "large":
-            std = True
-        elif f.name == "standard":
             lrg = True
+        elif f.name == "standard":
+            std = True
     if not std:
         std_f = conn.compute.create_flavor(name="standard", ram=256, vcpus=1, disk=1)
     if not lrg:
@@ -127,6 +127,7 @@ def server_schedule(image, network, flavor, start_peak, end_peak, start_delay, e
     scheduler.enter(start_delay, 1, create_server, (image, network, flavor, start_peak, end_peak,))
     scheduler.enter(end_delay, 2, delete_server, (start_peak, end_peak,))
 
+    #thread esterno perché è bloccante e la REST si fermerebbe
     t = threading.Thread(target=scheduler.run)
     t.start()
 
@@ -144,4 +145,5 @@ if __name__ == '__main__':
     for f in conn.compute.flavors():
         print(f.name)
 
+    #per rendere visibile l'indirizzo del controller
     app.run(debug=True, host='0.0.0.0')
