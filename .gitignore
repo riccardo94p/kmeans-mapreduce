@@ -1,5 +1,6 @@
 *.iml
+.settings/
 /.idea
-/target/
+Hadoop/target/
 .classpath
 .project
